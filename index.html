@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Test for Grade 1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .question {
+      color: blue;
+      font-size: 36px;
+      margin: 20px 0;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .answer-btn {
+      height: 80px;
+      padding: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .answer-btn:hover {
+      background-color: #45a049;
+    }
+
+    .answer-btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .feedback {
+      color: green;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .incorrect {
+      color: red;
+    }
+
+    #start-btn {
+      padding: 15px 30px;
+      font-size: 20px;
+      cursor: pointer;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #start-btn:hover {
+      background-color: #007399;
+    }
+
+    #timer {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    #result {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    #name-input-container {
+      margin: 20px 0;
+    }
+
+    #name-input {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    #save-name-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #save-name-btn:hover {
+      background-color: #007399;
+    }
+
+    #user-info {
+      font-weight: bold;
+      text-align: start;
+      font-size: 18px;
+      color: purple;
+      margin: 0px 0 5px 0;
+    }
+
+    #reward-info {
+      font-weight: bold;
+      text-align: start;
+      font-size: 18px;
+      color: purple;
+      margin: 5px 0 40px 0;
+    }
+
+    #reward-dialog {
+      text-align: start;
+      font-size: 18px;
+      color: purple;
+      margin: 20px 0;
+    }
+
+    /* #reward-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+    } */
+
+    #reward-dialog button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #reward-dialog button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="name-input-container" class="hidden">
+      <input type="text" id="name-input" placeholder="Enter your name">
+      <button id="save-name-btn">Save</button>
+    </div>
+    <div id="user-info"></div>
+    <div id="reward-info"></div>
+    <button id="start-btn">Start Test</button>
+    <div id="test" class="hidden">
+      <div id="timer">Time: 0:00</div>
+      <div id="question-number">Question x/y</div>
+      <div id="question" class="question"></div>
+      <div id="answers" class="answers"></div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+    <div id="result" class="hidden"></div>
+    <div id="reward-dialog" class="hidden">
+      <div>Choose Your Reward:</div>
+      <button onclick="selectReward('reward_coin', 5)">Tặng thêm 5K</button>
+      <button onclick="selectReward('reward_tv', 10)">Xem TV thêm 10 phút</button>
+      <button onclick="selectReward('reward_game', 10)">Chơi game thêm 10 phút</button>
+    </div>
+  </div>
+
+  <script>
+    // DOM elements
+    const startBtn = document.getElementById('start-btn');
+    const testDiv = document.getElementById('test');
+    const resultDiv = document.getElementById('result');
+    const questionDiv = document.getElementById('question');
+    const answersDiv = document.getElementById('answers');
+    const feedbackDiv = document.getElementById('feedback');
+    const timerDiv = document.getElementById('timer');
+    const questionNumberDiv = document.getElementById('question-number');
+    const nameInputContainer = document.getElementById('name-input-container');
+    const nameInput = document.getElementById('name-input');
+    const saveNameBtn = document.getElementById('save-name-btn');
+    const userInfoDiv = document.getElementById('user-info');
+    const rewardInfoDiv = document.getElementById('reward-info');
+    const rewardDialog = document.getElementById('reward-dialog');
+
+    // Exam properties
+    const TOTAL_QUESTION = 20;
+    const MAX_OF_NUMBER = 20;
+    const EXAM_TIME = 5 * 60; // 5 minutes in seconds
+
+    // Global variable
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let correctAnswers = 0;
+    let attempts = 0;
+    let timer;
+    let timeElapsed = 0;
+
+    // Initialize user info
+    function initializeUserInfo() {
+      nameInputContainer.classList.remove('hidden');
+      startBtn.classList.add('hidden');
+    }
+
+    // Select and save reward
+    function selectReward(reward, value) {
+      const currentRw = localStorage.getItem(reward);
+      localStorage.setItem(reward, Number(currentRw) + value);
+
+      const name = localStorage.getItem('userName');
+      const rwTv = localStorage.getItem('reward_tv');
+      const rwGame = localStorage.getItem('reward_game');
+      const rwCoin = localStorage.getItem('reward_coin');
+
+      rewardDialog.classList.add('hidden');
+      userInfoDiv.textContent = `Name: ${name}`;
+      rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút`;
+      startBtn.classList.remove('hidden');
+    }
+
+    // Save user name
+    saveNameBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (name) {
+        localStorage.setItem('userName', name);
+
+        const rwTv = localStorage.getItem('reward_tv');
+        const rwGame = localStorage.getItem('reward_game');
+        const rwCoin = localStorage.getItem('reward_coin');
+
+        nameInputContainer.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+        userInfoDiv.textContent = `Name: ${name}`;
+        rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút`;
+      }
+    });
+
+    // Generate a random math question
+    function generateQuestion() {
+      console.log('#generateQuestion');
+      var isAddition = Math.random() > 0.5;
+      var operator = isAddition ? '+' : '-';
+      var num1 = Math.floor(Math.random() * MAX_OF_NUMBER) + 1;
+      var num2 = Math.floor(Math.random() * (MAX_OF_NUMBER - num1 + 1)) + 1;
+
+      // Correct number for operator minus (-)
+      if (isAddition && num1 + num2 > MAX_OF_NUMBER) {
+        isAddition = !isAddition
+        operator = isAddition ? '+' : '-';
+      }
+      if (!isAddition && num1 < num2) {
+        const tmp = num1;
+        num1 = num2
+        num2 = tmp;
+      }
+
+      const correctAnswer = isAddition ? num1 + num2 : num1 - num2;
+      const answers = [correctAnswer];
+
+      // Generate 3 incorrect answers
+      while (answers.length < 4) {
+        console.log(num1 + ' ' + operator + ' ' + num2 + ' = ');
+        const wrongAnswer = correctAnswer + (Math.floor(Math.random() * 10) - 5);
+        if (wrongAnswer >= 0 && wrongAnswer <= MAX_OF_NUMBER && !answers.includes(wrongAnswer)) {
+          answers.push(wrongAnswer);
+        }
+      }
+      // Shuffle answers
+      for (let i = answers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [answers[i], answers[j]] = [answers[j], answers[i]];
+      }
+      return {
+        question: `${num1} ${operator} ${num2} = ?`,
+        correctAnswer,
+        answers
+      };
+    }
+
+    // Generate 20 questions
+    function generateQuestions() {
+      console.log('#generateQuestions');
+      questions = [];
+      for (let i = 0; i < TOTAL_QUESTION; i++) {
+        questions.push(generateQuestion());
+      }
+    }
+
+    // Display current question
+    function displayQuestion() {
+      console.log('#displayQuestion');
+      const q = questions[currentQuestionIndex];
+      questionNumberDiv.textContent = `Question ${currentQuestionIndex + 1}/${TOTAL_QUESTION}`;
+      questionDiv.textContent = q.question;
+      answersDiv.innerHTML = '';
+      q.answers.forEach(answer => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = answer;
+        btn.addEventListener('click', () => checkAnswer(answer, q.correctAnswer));
+        answersDiv.appendChild(btn);
+      });
+      feedbackDiv.textContent = '';
+      attempts = 0;
+    }
+
+    // Check user's answer
+    function checkAnswer(selected, correct) {
+      console.log('#checkAnswer');
+      attempts++;
+      const buttons = answersDiv.getElementsByClassName('answer-btn');
+      if (selected === correct) {
+        feedbackDiv.textContent = 'Correct!';
+        feedbackDiv.className = 'feedback correct';
+        correctAnswers++;
+        for (let btn of buttons) {
+          btn.disabled = true;
+        }
+        setTimeout(nextQuestion, 1000);
+      } else {
+        feedbackDiv.textContent = attempts === 1 ? 'Incorrect, try again!' : 'Incorrect! Moving to next question.';
+        feedbackDiv.className = 'feedback incorrect';
+        if (attempts === 2) {
+          for (let btn of buttons) {
+            btn.disabled = true;
+          }
+          setTimeout(nextQuestion, 1000);
+        }
+      }
+    }
+
+    // Move to next question or show result
+    function nextQuestion() {
+      console.log('#nextQuestion');
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        displayQuestion();
+      } else {
+        endTest();
+      }
+    }
+
+    // Start the timer
+    function startTimer() {
+      console.log('#startTimer');
+      timer = setInterval(() => {
+        timeElapsed++;
+        const minutes = Math.floor(timeElapsed / 60);
+        const seconds = timeElapsed % 60;
+        timerDiv.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        if (timeElapsed >= EXAM_TIME) {
+          endTest();
+        }
+      }, 1000);
+    }
+
+    // End the test and show result
+    function endTest() {
+      console.log('#endTest');
+      clearInterval(timer);
+      testDiv.classList.add('hidden');
+      const passed = correctAnswers === TOTAL_QUESTION && timeElapsed <= EXAM_TIME;
+      resultDiv.textContent = passed
+        ? `Congratulations! You passed the test with ${correctAnswers}/${TOTAL_QUESTION} correct in ${Math.floor(timeElapsed / 60)}:${timeElapsed % 60 < 10 ? '0' : ''}${timeElapsed % 60}.`
+        : `You failed the test. Score: ${correctAnswers}/${TOTAL_QUESTION} in ${Math.floor(timeElapsed / 60)}:${timeElapsed % 60 < 10 ? '0' : ''}${timeElapsed % 60}.`;
+      resultDiv.classList.remove('hidden');
+      if (passed) {
+        rewardDialog.classList.remove('hidden');
+      } else {
+        startBtn.classList.remove('hidden');
+      }
+    }
+
+    // Start the test
+    function startTest() {
+      console.log('#startTest');
+      startBtn.classList.add('hidden');
+      testDiv.classList.remove('hidden');
+      resultDiv.classList.add('hidden');
+      rewardDialog.classList.add('hidden');
+      generateQuestions();
+      currentQuestionIndex = 0;
+      correctAnswers = 0;
+      timeElapsed = 0;
+      displayQuestion();
+      startTimer();
+    }
+
+    // Ensure the start button is properly set up
+    if (startBtn) {
+      startBtn.addEventListener('click', startTest);
+    } else {
+      console.error('Start button not found');
+    }
+    initializeUserInfo();
+  </script>
+</body>
+
+</html>
