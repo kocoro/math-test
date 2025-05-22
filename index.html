@@ -77,6 +77,55 @@
       color: red;
     }
 
+    .reward-use {
+      margin: 20px;
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ccc;
+    }
+
+    .use-reward-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .use-reward-btn:hover {
+      background-color: #007399;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 16px;
+    }
+
+    .tab-button.active {
+      border-bottom: 3px solid #007BFF;
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px 0;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     #start-btn {
       padding: 15px 30px;
       font-size: 20px;
@@ -99,6 +148,14 @@
     #result {
       font-size: 24px;
       font-weight: bold;
+      margin: 20px 0;
+    }
+
+    #test-container {
+      margin: 20px 0;
+    }
+
+    #reward-container {
       margin: 20px 0;
     }
 
@@ -129,13 +186,12 @@
     #user-info {
       font-weight: bold;
       text-align: start;
-      font-size: 18px;
+      font-size: 20px;
       color: purple;
       margin: 0px 0 5px 0;
     }
 
     #reward-info {
-      font-weight: bold;
       text-align: start;
       font-size: 18px;
       color: purple;
@@ -186,27 +242,59 @@
     </div>
     <div id="user-info"></div>
     <div id="reward-info"></div>
-    <button id="start-btn">Start Test</button>
-    <div id="test" class="hidden">
-      <div id="timer">Time: 0:00</div>
-      <div id="question-number">Question x/y</div>
-      <div id="question" class="question"></div>
-      <div id="answers" class="answers"></div>
-      <div id="feedback" class="feedback"></div>
+
+    <div class="tabs">
+      <button class="tab-button active" onclick="showTab('home')">Test</button>
+      <button class="tab-button" onclick="showTab('reward')">Đổi thưởng</button>
+      <button class="tab-button" onclick="showTab('setting')">Cài đặt</button>
     </div>
-    <div id="result" class="hidden"></div>
-    <div id="reward-dialog" class="hidden">
-      <div>Choose Your Reward:</div>
-      <button onclick="selectReward('reward_coin', 5)">Tặng thêm 5K</button>
-      <button onclick="selectReward('reward_tv', 10)">Xem TV thêm 10 phút</button>
-      <button onclick="selectReward('reward_game', 10)">Chơi game thêm 10 phút</button>
+
+    <div id="home" class="tab-content active">
+      <button id="start-btn">Start Test</button>
+      <div id="test-container" class="hidden">
+        <div id="timer">Time: 0:00</div>
+        <div id="question-number">Question x/y</div>
+        <div id="question" class="question"></div>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" class="feedback"></div>
+      </div>
+      <div id="result" class="hidden"></div>
+      <div id="reward-dialog" class="hidden">
+        <div>Choose Your Reward:</div>
+        <button onclick="selectReward('reward_coin', 5)">Tặng thêm 5K</button>
+        <button onclick="selectReward('reward_tv', 10)">Xem TV thêm 10 phút</button>
+        <button onclick="selectReward('reward_game', 10)">Chơi game thêm 10 phút</button>
+      </div>
+    </div>
+
+    <div id="reward" class="tab-content">
+      <div id="reward-container" class="hidden">
+        <div>
+          <input type="text" id="reward-coin-use-txt" class="reward-use" placeholder="Số tiền">
+          <button id="use-reward-coin" class="use-reward-btn">Sử dụng</button>
+        </div>
+        <div>
+          <input type="text" id="reward-tv-use-txt" class="reward-use" placeholder="Số phút xem TV">
+          <button id="use-reward-tv" class="use-reward-btn">Sử dụng</button>
+        </div>
+        <div>
+          <input type="text" id="reward-game-use-txt" class="reward-use" placeholder="Số phút chơi game">
+          <button id="use-reward-game" class="use-reward-btn">Sử dụng</button>
+        </div>
+      </div>
+    </div>
+    <div id="setting" class="tab-content">
+      <div id="setting-container" class="hidden">
+      </div>
     </div>
   </div>
 
   <script>
     // DOM elements
     const startBtn = document.getElementById('start-btn');
-    const testDiv = document.getElementById('test');
+    const testDiv = document.getElementById('test-container');
+    const settingDiv = document.getElementById('setting-container');
+    const rewardDiv = document.getElementById('reward-container');
     const resultDiv = document.getElementById('result');
     const questionDiv = document.getElementById('question');
     const answersDiv = document.getElementById('answers');
@@ -215,7 +303,13 @@
     const questionNumberDiv = document.getElementById('question-number');
     const nameInputContainer = document.getElementById('name-input-container');
     const nameInput = document.getElementById('name-input');
+    const useCoinTxt = document.getElementById('reward-coin-use-txt');
+    const useTvTxt = document.getElementById('reward-tv-use-txt');
+    const useGameTxt = document.getElementById('reward-game-use-txt');
     const saveNameBtn = document.getElementById('save-name-btn');
+    const useCoinBtn = document.getElementById('use-reward-coin');
+    const useTvBtn = document.getElementById('use-reward-tv');
+    const useGameBtn = document.getElementById('use-reward-game');
     const userInfoDiv = document.getElementById('user-info');
     const rewardInfoDiv = document.getElementById('reward-info');
     const rewardDialog = document.getElementById('reward-dialog');
@@ -233,27 +327,44 @@
     let timer;
     let timeElapsed = 0;
 
-    // Initialize user info
-    function initializeUserInfo() {
-      nameInputContainer.classList.remove('hidden');
-      startBtn.classList.add('hidden');
-    }
+    useCoinBtn.addEventListener('click', () => {
+      const coin = useCoinTxt.value.trim();
+      const currentRwCoin = localStorage.getItem('reward_coin');
+      if (coin) {
+        const coinNumber = Number(coin);
+        const currentCoinNumber = Number(currentRwCoin);
+        if (coinNumber <= currentCoinNumber) {
+          localStorage.setItem('reward_coin', currentCoinNumber - coinNumber);
+          showUserAndReward();
+        }
+      }
+    });
 
-    // Select and save reward
-    function selectReward(reward, value) {
-      const currentRw = localStorage.getItem(reward);
-      localStorage.setItem(reward, Number(currentRw) + value);
+    useTvBtn.addEventListener('click', () => {
+      const tv = useTvTxt.value.trim();
+      if (tv) {
+        const currentRwTv = localStorage.getItem('reward_tv');
+        const tvNumber = Number(tv);
+        const currentTvNumber = Number(currentRwTv);
+        if (tvNumber <= currentTvNumber) {
+          localStorage.setItem('reward_tv', currentTvNumber - tvNumber);
+          showUserAndReward();
+        }
+      }
+    });
 
-      const name = localStorage.getItem('userName');
-      const rwTv = localStorage.getItem('reward_tv');
-      const rwGame = localStorage.getItem('reward_game');
-      const rwCoin = localStorage.getItem('reward_coin');
-
-      rewardDialog.classList.add('hidden');
-      userInfoDiv.textContent = `Name: ${name}`;
-      rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút`;
-      startBtn.classList.remove('hidden');
-    }
+    useGameBtn.addEventListener('click', () => {
+      const game = useGameTxt.value.trim();
+      if (game) {
+        const currentRwGame = localStorage.getItem('reward_game');
+        const gameNumber = Number(game);
+        const currentGameNumber = Number(currentRwGame);
+        if (gameNumber <= currentGameNumber) {
+          localStorage.setItem('reward_game', currentGameNumber - gameNumber);
+          showUserAndReward();
+        }
+      }
+    });
 
     // Save user name
     saveNameBtn.addEventListener('click', () => {
@@ -261,16 +372,57 @@
       if (name) {
         localStorage.setItem('userName', name);
 
-        const rwTv = localStorage.getItem('reward_tv');
-        const rwGame = localStorage.getItem('reward_game');
-        const rwCoin = localStorage.getItem('reward_coin');
-
+        showUserAndReward();
         nameInputContainer.classList.add('hidden');
+        settingDiv.classList.remove('hidden');
+        rewardDiv.classList.remove('hidden');
         startBtn.classList.remove('hidden');
-        userInfoDiv.textContent = `Name: ${name}`;
-        rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút`;
       }
     });
+
+    // Initialize user info
+    function initializeUserInfo() {
+      nameInputContainer.classList.remove('hidden');
+      startBtn.classList.add('hidden');
+    }
+
+    // Show a tab
+    function showTab(tabId) {
+      const contents = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-button');
+
+      contents.forEach(content => {
+        content.classList.remove('active');
+      });
+
+      buttons.forEach(button => {
+        button.classList.remove('active');
+      });
+
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Select and save reward
+    function selectReward(reward, value) {
+      const currentRw = localStorage.getItem(reward);
+      localStorage.setItem(reward, Number(currentRw) + value);
+
+      showUserAndReward();
+      rewardDialog.classList.add('hidden');
+      startBtn.classList.remove('hidden');
+    }
+
+    // Get name vs reward in local storage to show on UI
+    function showUserAndReward() {
+      console.log('#showUserAndReward');
+      const name = localStorage.getItem('userName');
+      const rwTv = localStorage.getItem('reward_tv');
+      const rwGame = localStorage.getItem('reward_game');
+      const rwCoin = localStorage.getItem('reward_coin');
+      userInfoDiv.textContent = `Name: ${name}`;
+      rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút`;
+    }
 
     // Generate a random math question
     function generateQuestion() {
@@ -413,6 +565,8 @@
       console.log('#startTest');
       startBtn.classList.add('hidden');
       testDiv.classList.remove('hidden');
+      settingDiv.classList.add('hidden');
+      rewardDiv.classList.add('hidden');
       resultDiv.classList.add('hidden');
       rewardDialog.classList.add('hidden');
       generateQuestions();
