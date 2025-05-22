@@ -553,6 +553,7 @@
         ? `Congratulations! You passed the test with ${correctAnswers}/${TOTAL_QUESTION} correct in ${Math.floor(timeElapsed / 60)}:${timeElapsed % 60 < 10 ? '0' : ''}${timeElapsed % 60}.`
         : `You failed the test. Score: ${correctAnswers}/${TOTAL_QUESTION} in ${Math.floor(timeElapsed / 60)}:${timeElapsed % 60 < 10 ? '0' : ''}${timeElapsed % 60}.`;
       resultDiv.classList.remove('hidden');
+      rewardDiv.classList.remove('hidden');
       if (passed) {
         rewardDialog.classList.remove('hidden');
       } else {
