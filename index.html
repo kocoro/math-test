@@ -270,15 +270,15 @@
     <div id="reward" class="tab-content">
       <div id="reward-container" class="hidden">
         <div>
-          <input type="text" id="reward-coin-use-txt" class="reward-use" placeholder="Số tiền">
+          <input type="number" id="reward-coin-use-txt" class="reward-use" placeholder="Số tiền">
           <button id="use-reward-coin" class="use-reward-btn">Sử dụng</button>
         </div>
         <div>
-          <input type="text" id="reward-tv-use-txt" class="reward-use" placeholder="Số phút xem TV">
+          <input type="number" id="reward-tv-use-txt" class="reward-use" placeholder="Số phút xem TV">
           <button id="use-reward-tv" class="use-reward-btn">Sử dụng</button>
         </div>
         <div>
-          <input type="text" id="reward-game-use-txt" class="reward-use" placeholder="Số phút chơi game">
+          <input type="number" id="reward-game-use-txt" class="reward-use" placeholder="Số phút chơi game">
           <button id="use-reward-game" class="use-reward-btn">Sử dụng</button>
         </div>
       </div>
@@ -316,8 +316,8 @@
 
     // Exam properties
     const TOTAL_QUESTION = 20;
-    const MAX_OF_NUMBER = 100;
-    const EXAM_TIME = 5 * 60; // 5 minutes in seconds
+    const MAX_OF_NUMBER = 20;
+    const EXAM_TIME = 4 * 60; // 5 minutes in seconds
 
     // Global variable
     let questions = [];
