@@ -264,6 +264,7 @@
         <button onclick="selectReward('reward_coin', 5)">Tặng thêm 5K</button>
         <button onclick="selectReward('reward_tv', 10)">Xem TV thêm 10 phút</button>
         <button onclick="selectReward('reward_game', 10)">Chơi game thêm 10 phút</button>
+		<button onclick="selectReward('reward_massage', 1)">Thêm 1 lần massage đầu</button>
       </div>
     </div>
 
@@ -280,6 +281,10 @@
         <div>
           <input type="number" id="reward-game-use-txt" class="reward-use" placeholder="Số phút chơi game">
           <button id="use-reward-game" class="use-reward-btn">Sử dụng</button>
+        </div>
+		<div>
+          <input type="number" id="reward-massage-use-txt" class="reward-use" placeholder="Số lần massage đầu">
+          <button id="use-reward-massage" class="use-reward-btn">Sử dụng</button>
         </div>
       </div>
     </div>
@@ -306,18 +311,20 @@
     const useCoinTxt = document.getElementById('reward-coin-use-txt');
     const useTvTxt = document.getElementById('reward-tv-use-txt');
     const useGameTxt = document.getElementById('reward-game-use-txt');
+	const useMassageTxt = document.getElementById('reward-massage-use-txt');
     const saveNameBtn = document.getElementById('save-name-btn');
     const useCoinBtn = document.getElementById('use-reward-coin');
     const useTvBtn = document.getElementById('use-reward-tv');
     const useGameBtn = document.getElementById('use-reward-game');
+	const useMassageBtn = document.getElementById('use-reward-massage');
     const userInfoDiv = document.getElementById('user-info');
     const rewardInfoDiv = document.getElementById('reward-info');
     const rewardDialog = document.getElementById('reward-dialog');
 
     // Exam properties
     const TOTAL_QUESTION = 20;
-    const MAX_OF_NUMBER = 10;
-    const EXAM_TIME = 1 * 60; // 5 minutes in seconds
+    const MAX_OF_NUMBER = 20;
+    const EXAM_TIME = 2 * 60; // 5 minutes in seconds
 
     // Global variable
     let questions = [];
@@ -361,6 +368,19 @@
         const currentGameNumber = Number(currentRwGame);
         if (gameNumber <= currentGameNumber) {
           localStorage.setItem('reward_game', currentGameNumber - gameNumber);
+          showUserAndReward();
+        }
+      }
+    });
+	
+	useMassageBtn.addEventListener('click', () => {
+      const massage = useMassageTxt.value.trim();
+      if (massage) {
+        const currentRwMassage = localStorage.getItem('reward_massage');
+        const massageNumber = Number(game);
+        const currentMassageNumber = Number(currentRwMassage);
+        if (massageNumber <= currentMassageNumber) {
+          localStorage.setItem('reward_massage', currentMassageNumber - massageNumber);
           showUserAndReward();
         }
       }
@@ -420,8 +440,9 @@
       const rwTv = localStorage.getItem('reward_tv');
       const rwGame = localStorage.getItem('reward_game');
       const rwCoin = localStorage.getItem('reward_coin');
+	  const rwMassage = localStorage.getItem('reward_massage');
       userInfoDiv.textContent = `Name: ${name}`;
-      rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút`;
+      rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút, Massage - ${rwMassage ? rwMassage : 0} lần`;
     }
 
     // Generate a random math question
