@@ -264,7 +264,7 @@
         <button onclick="selectReward('reward_coin', 5)">Tặng thêm 5K</button>
         <button onclick="selectReward('reward_tv', 10)">Xem TV thêm 10 phút</button>
         <button onclick="selectReward('reward_game', 10)">Chơi game thêm 10 phút</button>
-		<button onclick="selectReward('reward_massage', 1)">Thêm 1 lần massage đầu</button>
+        <button onclick="selectReward('reward_massage', 1)">Thêm 1 lần massage đầu</button>
       </div>
     </div>
 
@@ -282,7 +282,7 @@
           <input type="number" id="reward-game-use-txt" class="reward-use" placeholder="Số phút chơi game">
           <button id="use-reward-game" class="use-reward-btn">Sử dụng</button>
         </div>
-		<div>
+        <div>
           <input type="number" id="reward-massage-use-txt" class="reward-use" placeholder="Số lần massage đầu">
           <button id="use-reward-massage" class="use-reward-btn">Sử dụng</button>
         </div>
@@ -290,6 +290,22 @@
     </div>
     <div id="setting" class="tab-content">
       <div id="setting-container" class="hidden">
+        <div>
+          <input type="number" id="setting-questions-txt" class="reward-use" placeholder="Số lượng questions">
+          <button id="setting-questions" class="use-reward-btn">Set</button>
+        </div>
+        <div>
+          <input type="number" id="setting-time-txt" class="reward-use" placeholder="Time (s) của bài test">
+          <button id="setting-time" class="use-reward-btn">Set</button>
+        </div>
+        <div>
+          <input type="number" id="setting-max-txt" class="reward-use" placeholder="Phép tính dưới">
+          <button id="setting-max-number" class="use-reward-btn">Set</button>
+        </div>
+        <div>
+          <input type="text" id="setting-regex-txt" class="reward-use" placeholder="Format của phép toán">
+          <button id="setting-regex" class="use-reward-btn">Set</button>
+        </div>
       </div>
     </div>
   </div>
@@ -311,20 +327,33 @@
     const useCoinTxt = document.getElementById('reward-coin-use-txt');
     const useTvTxt = document.getElementById('reward-tv-use-txt');
     const useGameTxt = document.getElementById('reward-game-use-txt');
-	const useMassageTxt = document.getElementById('reward-massage-use-txt');
+    const useMassageTxt = document.getElementById('reward-massage-use-txt');
     const saveNameBtn = document.getElementById('save-name-btn');
+
+    // Reward tab
     const useCoinBtn = document.getElementById('use-reward-coin');
     const useTvBtn = document.getElementById('use-reward-tv');
     const useGameBtn = document.getElementById('use-reward-game');
-	const useMassageBtn = document.getElementById('use-reward-massage');
+    const useMassageBtn = document.getElementById('use-reward-massage');
     const userInfoDiv = document.getElementById('user-info');
     const rewardInfoDiv = document.getElementById('reward-info');
     const rewardDialog = document.getElementById('reward-dialog');
 
-    // Exam properties
-    const TOTAL_QUESTION = 20;
-    const MAX_OF_NUMBER = 20;
-    const EXAM_TIME = 2 * 60; // 5 minutes in seconds
+    // Settings tab
+    const settingQuestionBtn = document.getElementById('setting-questions');
+    const settingTimeBtn = document.getElementById('setting-time');
+    const settingMaxBtn = document.getElementById('setting-max-number');
+    const settingRegexBtn = document.getElementById('setting-regex');
+    const settingQuestionTxt = document.getElementById('setting-questions-txt');
+    const settingTimeTxt = document.getElementById('setting-time-txt');
+    const settingMaxTxt = document.getElementById('setting-max-txt');
+    const settingRegexTxt = document.getElementById('setting-regex-txt');
+
+    // Default settings value
+    var TOTAL_QUESTION = 20;
+    var MAX_OF_NUMBER = 20;
+    var EXAM_TIME = 60;
+    var REGEX_OPERATOR = "^(?:\d{1,2})[+\-*/](?:\d{1,2})=(?:[0-9]|1[0-9]|20)$";
 
     // Global variable
     let questions = [];
@@ -372,8 +401,8 @@
         }
       }
     });
-	
-	useMassageBtn.addEventListener('click', () => {
+
+    useMassageBtn.addEventListener('click', () => {
       const massage = useMassageTxt.value.trim();
       if (massage) {
         const currentRwMassage = localStorage.getItem('reward_massage');
@@ -385,6 +414,27 @@
         }
       }
     });
+
+    settingQuestionBtn.addEventListener('click', () => {
+      const questionsValue = settingQuestionTxt.value.trim();
+      localStorage.setItem('setting_questions', questionsValue);
+    });
+
+    settingTimeBtn.addEventListener('click', () => {
+      const timeValue = settingTimeTxt.value.trim();
+      localStorage.setItem('setting_time', timeValue);
+    });
+
+    settingMaxBtn.addEventListener('click', () => {
+      const maxValue = settingMaxTxt.value.trim();
+      localStorage.setItem('setting_max', maxValue);
+    });
+
+    settingRegexBtn.addEventListener('click', () => {
+      const regexValue = settingRegexTxt.value.trim();
+      localStorage.setItem('setting_regex', regexValue);
+    });
+
 
     // Save user name
     saveNameBtn.addEventListener('click', () => {
@@ -408,6 +458,7 @@
 
     // Show a tab
     function showTab(tabId) {
+      console.log('#showTab');
       const contents = document.querySelectorAll('.tab-content');
       const buttons = document.querySelectorAll('.tab-button');
 
@@ -421,10 +472,28 @@
 
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
+
+      loadTabData(tabId);
+    }
+
+    function loadTabData(tabId) {
+      console.log('#loadTabData');
+      if (tabId === 'home') {
+        console.log("Home loaded");
+      }
+
+      if (tabId === 'reward') {
+        console.log("Reward data");
+      }
+
+      if (tabId === 'setting') {
+        showSettings();
+      }
     }
 
     // Select and save reward
     function selectReward(reward, value) {
+      console.log('#selectReward');
       const currentRw = localStorage.getItem(reward);
       localStorage.setItem(reward, Number(currentRw) + value);
 
@@ -440,9 +509,27 @@
       const rwTv = localStorage.getItem('reward_tv');
       const rwGame = localStorage.getItem('reward_game');
       const rwCoin = localStorage.getItem('reward_coin');
-	  const rwMassage = localStorage.getItem('reward_massage');
+      const rwMassage = localStorage.getItem('reward_massage');
       userInfoDiv.textContent = `Name: ${name}`;
       rewardInfoDiv.textContent = `Rewards: Tiền - ${rwCoin ? rwCoin : 0}K, Xem TV - ${rwTv ? rwTv : 0} phút, Play Game - ${rwGame ? rwGame : 0} phút, Massage - ${rwMassage ? rwMassage : 0} lần`;
+    }
+
+    // Get Settings in local storage to show on UI
+    function showSettings() {
+      console.log('#showSettings');
+      const userName = localStorage.getItem('userName');
+      if (userName != "ThuanVV") {
+        settingDiv.classList.add('hidden');
+        return;
+      }
+      const settingQuestions = localStorage.getItem('setting_questions');
+      settingQuestionTxt.value = `${settingQuestions}`
+      const settingTime = localStorage.getItem('setting_time');
+      settingTimeTxt.value = `${settingTime}`
+      const settingMax = localStorage.getItem('setting_max');
+      settingMaxTxt.value = `${settingMax}`
+      const settingRegex = localStorage.getItem('setting_regex');
+      settingRegexTxt.value = `${settingRegex}`
     }
 
     // Generate a random math question
@@ -575,11 +662,21 @@
         : `You failed the test. Score: ${correctAnswers}/${TOTAL_QUESTION} in ${Math.floor(timeElapsed / 60)}:${timeElapsed % 60 < 10 ? '0' : ''}${timeElapsed % 60}.`;
       resultDiv.classList.remove('hidden');
       rewardDiv.classList.remove('hidden');
+      settingDiv.classList.remove('hidden');
       if (passed) {
         rewardDialog.classList.remove('hidden');
       } else {
         startBtn.classList.remove('hidden');
       }
+    }
+
+    // load settings value to apply to exam test
+    function applySettings() {
+      console.log('#applySettings');
+      TOTAL_QUESTION = Number(localStorage.getItem('setting_questions'));
+      EXAM_TIME = Number(localStorage.getItem('setting_time'));
+      MAX_OF_NUMBER = Number(localStorage.getItem('setting_max'));
+      REGEX_OPERATOR = localStorage.getItem('setting_regex');
     }
 
     // Start the test
@@ -591,6 +688,7 @@
       rewardDiv.classList.add('hidden');
       resultDiv.classList.add('hidden');
       rewardDialog.classList.add('hidden');
+      applySettings();
       generateQuestions();
       currentQuestionIndex = 0;
       correctAnswers = 0;
