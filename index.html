@@ -567,6 +567,14 @@
         const j = Math.floor(Math.random() * (i + 1));
         [answers[i], answers[j]] = [answers[j], answers[i]];
       }
+      // Ignore easy question
+      if (isAddition && (correctAnswer <= 10 || num1 >= 10 || num2 >= 10)) {
+        return;
+      }
+      if (!isAddition && (correctAnswer >= 10 || num1 <= 10 || num2 >= 10)) {
+        return;
+      }
+
       return {
         question: `${num1} ${operator} ${num2} = ?`,
         correctAnswer,
@@ -577,9 +585,11 @@
     // Generate 20 questions
     function generateQuestions() {
       console.log('#generateQuestions');
-      questions = [];
-      for (let i = 0; i < TOTAL_QUESTION; i++) {
-        questions.push(generateQuestion());
+      while (questions.length < TOTAL_QUESTION) {
+        var question = generateQuestion();
+        if (question) {
+          questions.push(question);
+        }
       }
     }
 
