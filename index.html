@@ -535,29 +535,51 @@
     // Generate a random math question
     function generateQuestion() {
       console.log('#generateQuestion');
-      var isAddition = Math.random() > 0.5;
-      var operator = isAddition ? '+' : '-';
-      var num1 = Math.floor(Math.random() * MAX_OF_NUMBER) + 1;
-      var num2 = Math.floor(Math.random() * (MAX_OF_NUMBER - num1 + 1)) + 1;
+      // 0: +, 1: -, 2: x, 3: :
+      var opType = Math.floor(Math.random() * 4);
+      var operator = ['+', '-', 'x', ':'][opType];
+      let num1, num2, correctAnswer;
 
-      // Correct number for operator minus (-)
-      if (isAddition && num1 + num2 > MAX_OF_NUMBER) {
-        isAddition = !isAddition
-        operator = isAddition ? '+' : '-';
-      }
-      if (!isAddition && num1 < num2) {
-        const tmp = num1;
-        num1 = num2
-        num2 = tmp;
+      if (operator === '+') {
+        num1 = Math.floor(Math.random() * MAX_OF_NUMBER) + 1;
+        num2 = Math.floor(Math.random() * (MAX_OF_NUMBER - num1 + 1)) + 1;
+        if (num1 + num2 > MAX_OF_NUMBER) return;
+        correctAnswer = num1 + num2;
+        // Bỏ qua phép cộng dễ
+        if (correctAnswer <= 10 || num1 >= 10 || num2 >= 10) return;
+      } else if (operator === '-') {
+        num1 = Math.floor(Math.random() * (MAX_OF_NUMBER - 1)) + 2; // >=2
+        num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // < num1
+        correctAnswer = num1 - num2;
+        // Bỏ qua phép trừ dễ
+        if (correctAnswer >= 10 || num1 <= 10 || num2 >= 10) return;
+      } else if (operator === 'x') {
+        num1 = Math.floor(Math.random() * 10) + 2; // 2-11
+        num2 = Math.floor(Math.random() * 10) + 2; // 2-11
+        correctAnswer = num1 * num2;
+        // Bỏ qua phép nhân dễ
+        if (correctAnswer > MAX_OF_NUMBER || num1 > 10 || num2 > 10) return;
+      } else if (operator === ':') {
+        num2 = Math.floor(Math.random() * 9) + 2; // 2-10
+        correctAnswer = Math.floor(Math.random() * 10) + 2; // 2-11
+        num1 = num2 * correctAnswer;
+        // num1 chia hết cho num2, kết quả là correctAnswer
+        if (num1 > MAX_OF_NUMBER || correctAnswer > 10 || num2 > 10) return;
       }
 
-      const correctAnswer = isAddition ? num1 + num2 : num1 - num2;
       const answers = [correctAnswer];
-
       // Generate 3 incorrect answers
       while (answers.length < 4) {
-        console.log(num1 + ' ' + operator + ' ' + num2 + ' = ');
-        const wrongAnswer = correctAnswer + (Math.floor(Math.random() * 10) - 5);
+        let wrongAnswer;
+        if (operator === '+') {
+          wrongAnswer = correctAnswer + (Math.floor(Math.random() * 7) - 3);
+        } else if (operator === '-') {
+          wrongAnswer = correctAnswer + (Math.floor(Math.random() * 7) - 3);
+        } else if (operator === 'x') {
+          wrongAnswer = correctAnswer + (Math.floor(Math.random() * 11) - 5);
+        } else if (operator === ':') {
+          wrongAnswer = correctAnswer + (Math.floor(Math.random() * 7) - 3);
+        }
         if (wrongAnswer >= 0 && wrongAnswer <= MAX_OF_NUMBER && !answers.includes(wrongAnswer)) {
           answers.push(wrongAnswer);
         }
@@ -566,13 +588,6 @@
       for (let i = answers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [answers[i], answers[j]] = [answers[j], answers[i]];
-      }
-      // Ignore easy question
-      if (isAddition && (correctAnswer <= 10 || num1 >= 10 || num2 >= 10)) {
-        return;
-      }
-      if (!isAddition && (correctAnswer >= 10 || num1 <= 10 || num2 >= 10)) {
-        return;
       }
 
       return {
